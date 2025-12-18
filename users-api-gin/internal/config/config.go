@@ -6,17 +6,19 @@ import (
 
 type Config struct{
 	HTTPPort string
+	LogLevel string
 }
 
 func Load() *Config {
 	return &Config{
-		HTTPPort: getEnv("HTTP_PORT", "8080")
+		HTTPPort: getEnv("HTTP_PORT", "8080"),
+		LogLevel: getEnv("LOG_LEVEL", "info"),
 	}
 }
 
 func getEnv(key, defaultValue string) string {
 	v := os.Getenv(key)
-	if v! = "" {
+	if v != "" {
 		return v
 	}
 	return defaultValue
