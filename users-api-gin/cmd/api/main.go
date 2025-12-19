@@ -8,6 +8,7 @@ import (
 	"users-api-gin/internal/config"
     "users-api-gin/internal/logger"
     "users-api-gin/internal/middleware"
+	"users-api-gin/internal/repository/postgres"
 )
 
 func main() {
@@ -39,4 +40,9 @@ func main() {
 		log.Error("server failed", "error", err)
 	}
 
+	/*db*/_ , err = postgres.New(cfg.DBDSN)
+	if err != nil {
+		log.Error("failed to connect to db", "error", err)
+	return
+}
 }
