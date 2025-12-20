@@ -9,6 +9,8 @@ import (
     "users-api-gin/internal/logger"
     "users-api-gin/internal/middleware"
 	"users-api-gin/internal/repository/postgres"
+	"users-api-gin/internal/service"
+	"users-api-gin/internal/handler"
 )
 
 func main() {
@@ -40,9 +42,20 @@ func main() {
 		log.Error("server failed", "error", err)
 	}
 
-	/*db*/_ , err = postgres.New(cfg.DBDSN)
+	db, err := postgres.New(cfg.DBDSN)
 	if err != nil {
 		log.Error("failed to connect to db", "error", err)
-	return
+		return
+	}
+
+	userRepo := postgres.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userService)
+
+
+	router.POST("/users", userHandler.Create)
+	router.GET("/users", userHandler.List)
+	router.GET("/users/:id", userHandler.GetByID)
+
 }
-}
+
