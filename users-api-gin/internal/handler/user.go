@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"users-api-gin/internal/model"
 	"users-api-gin/internal/service"
 )
 
@@ -41,24 +42,23 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 	user, err := h.service.CreateUser(req.Email)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		switch err {
+		case service.ErrEmailRequired:
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		}
 		return
 	}
 
-	resp := UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt.Format(time.RFC3339),
-	}
-
+	resp := toUserResponse(user)
 	c.JSON(http.StatusCreated, resp)
 }
 
 
-func (h *UserHandler) GetByID(c *gin.Context) {
-	idParam := c.Param("id")
 
-	id, err := strconv.ParseInt(idParam, 10, 64)
+func (h *UserHandler) GetByID(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -66,21 +66,18 @@ func (h *UserHandler) GetByID(c *gin.Context) {
 
 	user, err := h.service.GetUser(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		switch err {
+		case service.ErrInvalidUserID:
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case service.ErrUserNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		}
 		return
 	}
 
-	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-		return
-	}
-
-	resp := UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt.Format(time.RFC3339),
-	}
-
+	resp := toUserResponse(user)
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -102,4 +99,14 @@ func (h *UserHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp)
+}
+
+
+
+func toUserResponse(user *model.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt.Format(time.RFC3339),
+	}
 }

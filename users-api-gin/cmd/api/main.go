@@ -15,32 +15,8 @@ import (
 
 func main() {
 	cfg := config.Load()
+
 	log := logger.New(cfg.LogLevel)
-
-
-
-	router := gin.New() 
-	router.Use(gin.Recovery())
-	router.Use(middleware.RequestID())
-
-	router.GET("/health", func(c *gin.Context){
-		reqID, _ := c.Get("X-Request-ID")
-
-		log.Info("health check",
-			"request_id", reqID,
-		)
-
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
-
-	log.Info("starting server",
-		"port", cfg.HTTPPort,
-	)
-
-	err := router.Run(":"+cfg.HTTPPort) //обёртка gin над http.ListenAndServe(addr, router)
-	if err !=nil{
-		log.Error("server failed", "error", err)
-	}
 
 	db, err := postgres.New(cfg.DBDSN)
 	if err != nil {
@@ -52,10 +28,25 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(middleware.RequestID())
 
+	// health
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// 🚨 ВАЖНО: USERS ROUTES
 	router.POST("/users", userHandler.Create)
 	router.GET("/users", userHandler.List)
 	router.GET("/users/:id", userHandler.GetByID)
 
+	log.Info("starting server", "port", cfg.HTTPPort)
+
+	if err := router.Run(":" + cfg.HTTPPort); err != nil {
+		log.Error("server failed", "error", err)
+	}
 }
+
 

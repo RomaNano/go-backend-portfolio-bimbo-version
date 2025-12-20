@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-
 	"users-api-gin/internal/model"
 	"users-api-gin/internal/repository"
 )
@@ -19,7 +17,7 @@ func NewUserService(repo repository.UserRepository) *UserServiceImpl {
 // CreateUser
 func (s *UserServiceImpl) CreateUser(email string) (*model.User, error) {
 	if email == "" {
-		return nil, errors.New("email is required")
+		return nil, ErrEmailRequired
 	}
 
 	user := &model.User{
@@ -36,10 +34,19 @@ func (s *UserServiceImpl) CreateUser(email string) (*model.User, error) {
 // GetUser
 func (s *UserServiceImpl) GetUser(id int64) (*model.User, error) {
 	if id <= 0 {
-		return nil, errors.New("invalid user id")
+		return nil, ErrInvalidUserID
 	}
 
-	return s.repo.GetByID(id)
+	user, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, ErrUserNotFound
+	}
+
+	return user, nil
 }
 
 // ListUsers
