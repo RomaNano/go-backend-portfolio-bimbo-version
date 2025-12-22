@@ -37,7 +37,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	// 🚨 ВАЖНО: USERS ROUTES
+	// USERS ROUTES
 	router.POST("/users", userHandler.Create)
 	router.GET("/users", userHandler.List)
 	router.GET("/users/:id", userHandler.GetByID)
