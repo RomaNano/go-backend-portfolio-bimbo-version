@@ -36,6 +36,7 @@ docker compose up postgres
 PostgreSQL будет доступен на `localhost:5433`.
 
 ### 2. Запуск API локально
+[DB_DSN раскрыто для учебных целей] 
 DB_DSN="postgres://users:users@localhost:5433/users?sslmode=disable" \
 go run ./cmd/api
 
