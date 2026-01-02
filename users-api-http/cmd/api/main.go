@@ -8,10 +8,10 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/handler"
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/middleware"
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/repository/postgres"
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/service"
+	"users-api-http/internal/handler"
+	"users-api-http/internal/middleware"
+	"users-api-http/internal/repository/postgres"
+	"users-api-http/internal/service"
 )
 
 func main() {

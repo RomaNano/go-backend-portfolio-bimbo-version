@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/model"
+	"users-api-http/internal/model"
 )
 
 

@@ -3,8 +3,8 @@ package service
 import (
 	//"time"
 
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/model"
-	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/repository"
+	"users-api-http/internal/model"
+	"users-api-http/internal/repository"
 )
 
 type UserServiceImpl struct {
