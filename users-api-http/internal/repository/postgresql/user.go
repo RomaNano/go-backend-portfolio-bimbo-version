@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/romanrey/go-backend-portfolio-bimbo-version/users-api-http/internal/model"
+	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/model"
 )
 
 type UserRepository struct{

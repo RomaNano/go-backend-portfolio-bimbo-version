@@ -1,4 +1,4 @@
-module github.com/romanrey/go-backend-portfolio-bimbo-version/users-api-http
+module github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http
 
 go 1.25.3
 

@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"github.com/romanrey/go-backend-portfolio-bimbo-version/users-api-http/internal/service"
+	"github.com/RomaNano/go-backend-portfolio-bimbo-version/users-api-http/internal/service"
 )
 
 type UserHandler struct {
