@@ -5,12 +5,12 @@
 и отказ от фреймворков в пользу стандартной библиотеки.
 
 ## Стек
-- Go
+- Go 1.25
 - net/http
-- PostgreSQL
+- PostgreSQL 16
 - database/sql
 - Docker
-- slog / log
+- Docker Compose
 
 ## Архитектура
 
@@ -21,14 +21,14 @@ HTTP (net/http)
         → Repository (PostgreSQL)
 
 ## Функциональность
-- Health check
-- Создание пользователя
-- Получение списка пользователей
-- Получение пользователя по ID
-- Валидация входных данных
-- Domain → HTTP error mapping
-- Request ID propagation
-- Logging middleware (status, duration)
+- REST API для управления пользователями
+- Health-check endpoint
+- Валидация входящих данных
+- Работа с PostgreSQL
+- Слоистая архитектура (handler → service → repository)
+- Конфигурация через environment variables
+- Docker и Docker Compose
+- Устойчивый старт при отложенной готовности БД
 
 ## Запуск
 
