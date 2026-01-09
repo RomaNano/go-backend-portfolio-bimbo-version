@@ -36,7 +36,7 @@ func main() {
 	userHandler := handler.NewUserHandler(userService)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/users", userHandler.Create)
+	mux.HandleFunc("POST /users", userHandler.Create)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
