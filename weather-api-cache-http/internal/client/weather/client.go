@@ -11,7 +11,8 @@ import (
 )
 
 type Client interface {
-	GetCurrent(ctx context.Context, lat, lon float64)(*model.Weather, err)
+	GetCurrent(ctx context.Context, lat, lon float64)(*model.Weather, error)
+	GetHourly(ctx context.Context, lat, lon float64)([]float64, error)
 }
 
 type HTTPClient struct {
@@ -74,5 +75,49 @@ func (c *HTTPClient) GetCurrent(
 		Temperature: apiResp.CurrentWeather.Temperature,
 		WindSpeed:   apiResp.CurrentWeather.WindSpeed,
 	}, nil
+}
+
+// для Concurrency
+func (c *HTTPClient) GetHourly(
+	ctx context.Context,
+	lat, lon float64,
+)([]float64, error) {
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(
+			"%s?latitude=%f&longitude=%f&hourly=temperature_2m&forecast_days=1",
+			c.baseURL,
+			lat,
+			lon,
+		),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil{
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("hourly api returned %s", resp.Status)
+	}
+
+	var data struct {
+		Hourly struct{
+			Temperature []float64 `json:"temperature_2m"`
+		} `json:"hourly"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&data); err!=nil {
+		return nil, err
+	}
+
+	return data.Hourly.Temperature,nil
 }
 
