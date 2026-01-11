@@ -4,6 +4,10 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
 
 	//"weather-api-cache-http/internal/cache/redis"
 	"weather-api-cache-http/internal/config"
@@ -13,6 +17,8 @@ import (
 	redisCache "weather-api-cache-http/internal/cache/redis"
 	weatherClient "weather-api-cache-http/internal/client/weather"
 	weatherService "weather-api-cache-http/internal/service/weather"
+	"weather-api-cache-http/internal/metrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -40,6 +46,9 @@ func main() {
 	mux.Handle("/health", handler.Health())
 	mux.Handle("/weather", handler.Weather(svc))
 
+	metrics.Register()
+	mux.Handle("/metrics", promhttp.Handler())
+
 	// оборачиваем весь mux, а не конкретный handler
 	var h http.Handler = mux
 	h = middleware.RequestID(h)
@@ -54,10 +63,34 @@ func main() {
 		IdleTimeout: 60 * time.Second,
 	}
 
-	log.Printf("starting http server on :%s", cfg.HTTPPort)
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
+
+	// context, который отменится при SIGINT / SIGTERM
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	go func() {
+		log.Printf("starting http server on: %s", cfg.HTTPPort)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	<-ctx.Done()
+	
+	log.Println("shutdown signal received")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(),5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Printf("server shutdown failed: %v", err)
 	}
+
+	log.Println("server gracefully stopped")
 
 }

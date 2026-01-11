@@ -6,10 +6,17 @@ import (
 	"strconv"
 
 	"weather-api-cache-http/internal/service/weather"
+	"weather-api-cache-http/internal/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+
 )
 
 func Weather(svc *weather.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
+		metrics.WeatherRequests.Inc()
+		timer := prometheus.NewTimer(metrics.RequestDuration)
+		defer timer.ObserveDuration()
+		
 		q := r.URL.Query()
 
 		latStr := q.Get("lat")
