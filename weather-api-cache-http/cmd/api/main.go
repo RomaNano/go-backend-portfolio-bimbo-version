@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	//"weather-api-cache-http/internal/cache/redis"
 	"weather-api-cache-http/internal/config"
 	"weather-api-cache-http/internal/handler"
 	"weather-api-cache-http/internal/logger"
@@ -81,7 +80,7 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	
+
 	log.Println("shutdown signal received")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(),5*time.Second)
