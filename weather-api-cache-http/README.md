@@ -4,6 +4,7 @@ A production-style HTTP service written in Go that provides current weather data
 with Redis caching, concurrent external API calls and full observability
 (logging, metrics, graceful shutdown).
 
+
 This project is part of a backend portfolio and demonstrates real-world Go
 backend patterns.
 
@@ -20,6 +21,7 @@ backend patterns.
 - Prometheus metrics (`/metrics`)
 - Graceful shutdown (`SIGINT`, `SIGTERM`)
 - Configuration via environment variables
+- Business logic is covered by unit tests; basic API handler test is included using httptest.
 
 ---
 
