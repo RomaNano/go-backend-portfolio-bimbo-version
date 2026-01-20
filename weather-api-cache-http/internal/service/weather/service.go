@@ -104,6 +104,7 @@ func (s *Service) GetCurrent(
 	current.HourlyTemps = hourly
 
 	// 3) save to cache
+	// почему не прокинуть п.3 через горутину?
 	b, err := json.Marshal(current)
 	if err == nil {
 		cacheCtx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)

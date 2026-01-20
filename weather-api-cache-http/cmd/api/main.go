@@ -1,22 +1,23 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
-	"time"
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	redisCache "weather-api-cache-http/internal/cache/redis"
+	weatherClient "weather-api-cache-http/internal/client/weather"
 	"weather-api-cache-http/internal/config"
 	"weather-api-cache-http/internal/handler"
 	"weather-api-cache-http/internal/logger"
-	"weather-api-cache-http/internal/middleware"
-	redisCache "weather-api-cache-http/internal/cache/redis"
-	weatherClient "weather-api-cache-http/internal/client/weather"
-	weatherService "weather-api-cache-http/internal/service/weather"
 	"weather-api-cache-http/internal/metrics"
+	"weather-api-cache-http/internal/middleware"
+	weatherService "weather-api-cache-http/internal/service/weather"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -26,12 +27,10 @@ func main() {
 	logg := logger.New()
 	cache := redisCache.New(cfg.RedisAddr)
 
-	apiClient :=weatherClient.New(
+	apiClient := weatherClient.New(
 		cfg.WeatherBaseURL,
 		time.Duration(cfg.WeatherTimeoutSec)*time.Second,
 	)
-
-
 
 	svc := weatherService.New(
 		cache,
@@ -39,7 +38,6 @@ func main() {
 		time.Duration(cfg.WeatherCacheTTLSeconds)*time.Second,
 		logg,
 	)
-	
 
 	mux := http.NewServeMux()
 	mux.Handle("/health", handler.Health())
@@ -54,15 +52,13 @@ func main() {
 	h = middleware.Logging(logg)(h)
 
 	server := &http.Server{
-		Addr:    ":" + cfg.HTTPPort,
-		Handler: h,
+		Addr:              ":" + cfg.HTTPPort,
+		Handler:           h,
 		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout: 10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout: 60 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
-
-
 
 	// context, который отменится при SIGINT / SIGTERM
 	ctx, stop := signal.NotifyContext(
@@ -83,7 +79,7 @@ func main() {
 
 	log.Println("shutdown signal received")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(),5*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {

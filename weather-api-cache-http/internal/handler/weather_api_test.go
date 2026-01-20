@@ -2,28 +2,28 @@ package handler_test
 
 import (
 	"context"
-	"time"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
-	"testing"
 	"net/http/httptest"
-	"encoding/json"
+	"testing"
+	"time"
 
-	"weather-api-cache-http/internal/model"	
-	"weather-api-cache-http/internal/service/weather"
 	"weather-api-cache-http/internal/handler"
+	"weather-api-cache-http/internal/model"
+	"weather-api-cache-http/internal/service/weather"
 )
 
 // Готовим fake-зависимости
 
-type fakeCache struct {}
+type fakeCache struct{}
 
-func (f *fakeCache) Get(ctx context.Context, key string) (string, error){
+func (f *fakeCache) Get(ctx context.Context, key string) (string, error) {
 	return "", nil
 }
 
-func (f *fakeCache) Set(ctx context.Context, key, value string, ttl time.Duration) error{
+func (f *fakeCache) Set(ctx context.Context, key, value string, ttl time.Duration) error {
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (f *fakeWeatherAPI) GetHourly(
 	ctx context.Context,
 	lat, lon float64,
 ) ([]float64, error) {
-	return []float64{1,2,3},nil
+	return []float64{1, 2, 3}, nil
 }
 
 // Собираем сервис и handler
@@ -71,7 +71,6 @@ func setupTestServer() http.Handler {
 
 	return mux
 }
-
 
 // Сам API-тест
 

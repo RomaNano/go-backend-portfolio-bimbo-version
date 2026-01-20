@@ -11,13 +11,13 @@ import (
 )
 
 type Client interface {
-	GetCurrent(ctx context.Context, lat, lon float64)(*model.Weather, error)
-	GetHourly(ctx context.Context, lat, lon float64)([]float64, error)
+	GetCurrent(ctx context.Context, lat, lon float64) (*model.Weather, error)
+	GetHourly(ctx context.Context, lat, lon float64) ([]float64, error)
 }
 
 type HTTPClient struct {
 	baseURL string
-	client *http.Client
+	client  *http.Client
 }
 
 func New(baseURL string, timeout time.Duration) *HTTPClient {
@@ -29,8 +29,8 @@ func New(baseURL string, timeout time.Duration) *HTTPClient {
 	}
 }
 
-type apiResponse struct{
-	CurrentWeather struct{
+type apiResponse struct {
+	CurrentWeather struct {
 		Temperature float64 `json:"temperature"`
 		WindSpeed   float64 `json:"windspeed"`
 	} `json:"current_weather"`
@@ -81,7 +81,7 @@ func (c *HTTPClient) GetCurrent(
 func (c *HTTPClient) GetHourly(
 	ctx context.Context,
 	lat, lon float64,
-)([]float64, error) {
+) ([]float64, error) {
 
 	req, err := http.NewRequestWithContext(
 		ctx,
@@ -99,7 +99,7 @@ func (c *HTTPClient) GetHourly(
 	}
 
 	resp, err := c.client.Do(req)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -109,15 +109,14 @@ func (c *HTTPClient) GetHourly(
 	}
 
 	var data struct {
-		Hourly struct{
+		Hourly struct {
 			Temperature []float64 `json:"temperature_2m"`
 		} `json:"hourly"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&data); err!=nil {
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return nil, err
 	}
 
-	return data.Hourly.Temperature,nil
+	return data.Hourly.Temperature, nil
 }
-
